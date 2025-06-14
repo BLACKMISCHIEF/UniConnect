@@ -2,70 +2,70 @@ const express = require('express');
 const router = express.Router();
 const db = require('../../config');
 
-// Get all enrollments
+// Get all departments
 router.get('/', async (req, res) => {
     try {
-        const [enrollments] = await db.query('SELECT * FROM enrollment');
-        res.json(enrollments);
+        const [departments] = await db.query('SELECT * FROM departments');
+        res.json(departments);
     } catch (error) {
-        console.error("Error fetching enrollments:", error);
-        res.status(500).json({ error: 'Error fetching enrollments' });
+        console.error("Error fetching departments:", error);
+        res.status(500).json({ error: 'Error fetching departments' });
     }
 });
 
-// Get a single enrollment by ID
-router.get('/:enrollment_id', async (req, res) => {
+// Get a single department by ID
+router.get('/:department_id', async (req, res) => {
     try {
-        const { enrollment_id } = req.params;
-        const [enrollment] = await db.query('SELECT * FROM enrollment WHERE enrollment_id = ?', [enrollment_id]);
-        if (enrollment.length === 0) return res.status(404).json({ error: 'Enrollment not found' });
-        res.json(enrollment[0]);
+        const { department_id } = req.params;
+        const [department] = await db.query('SELECT * FROM departments WHERE department_id = ?', [department_id]);
+        if (department.length === 0) return res.status(404).json({ error: 'Department not found' });
+        res.json(department[0]);
     } catch (error) {
-        console.error("Error fetching enrollment:", error);
-        res.status(500).json({ error: 'Error fetching enrollment' });
+        console.error("Error fetching department:", error);
+        res.status(500).json({ error: 'Error fetching department' });
     }
 });
 
-// Add a new enrollment
+// Add a new department
 router.post('/', async (req, res) => {
     try {
-        const { student_id, course_id, enrollment_date, grade } = req.body;
+        const { department_name, head_of_department } = req.body;
         const [result] = await db.query(
-            'INSERT INTO enrollment (student_id, course_id, enrollment_date, grade) VALUES (?, ?, ?, ?)',
-            [student_id, course_id, enrollment_date, grade]
+            'INSERT INTO departments (department_name, head_of_department) VALUES (?, ?)',
+            [department_name, head_of_department]
         );
-        res.json({ enrollment_id: result.insertId, student_id, course_id, enrollment_date, grade });
+        res.json({ department_id: result.insertId, department_name, head_of_department });
     } catch (error) {
-        console.error("Error adding enrollment:", error);
-        res.status(500).json({ error: 'Error adding enrollment' });
+        console.error("Error adding department:", error);
+        res.status(500).json({ error: 'Error adding department' });
     }
 });
 
-// Update an enrollment
-router.put('/:enrollment_id', async (req, res) => {
+// Update a department
+router.put('/:department_id', async (req, res) => {
     try {
-        const { enrollment_id } = req.params;
-        const { student_id, course_id, enrollment_date, grade } = req.body;
+        const { department_id } = req.params;
+        const { department_name, head_of_department } = req.body;
         await db.query(
-            'UPDATE enrollment SET student_id = ?, course_id = ?, enrollment_date = ?, grade = ? WHERE enrollment_id = ?',
-            [student_id, course_id, enrollment_date, grade, enrollment_id]
+            'UPDATE departments SET department_name = ?, head_of_department = ? WHERE department_id = ?',
+            [department_name, head_of_department, department_id]
         );
-        res.json({ enrollment_id, student_id, course_id, enrollment_date, grade });
+        res.json({ department_id, department_name, head_of_department });
     } catch (error) {
-        console.error("Error updating enrollment:", error);
-        res.status(500).json({ error: 'Error updating enrollment' });
+        console.error("Error updating department:", error);
+        res.status(500).json({ error: 'Error updating department' });
     }
 });
 
-// Delete an enrollment
-router.delete('/:enrollment_id', async (req, res) => {
+// Delete a department
+router.delete('/:department_id', async (req, res) => {
     try {
-        const { enrollment_id } = req.params;
-        await db.query('DELETE FROM enrollment WHERE enrollment_id = ?', [enrollment_id]);
-        res.json({ message: 'Enrollment deleted successfully' });
+        const { department_id } = req.params;
+        await db.query('DELETE FROM departments WHERE department_id = ?', [department_id]);
+        res.json({ message: 'Department deleted successfully' });
     } catch (error) {
-        console.error("Error deleting enrollment:", error);
-        res.status(500).json({ error: 'Error deleting enrollment' });
+        console.error("Error deleting department:", error);
+        res.status(500).json({ error: 'Error deleting department' });
     }
 });
 
