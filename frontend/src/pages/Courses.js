@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form, Input, InputNumber } from 'antd';
 import axios from 'axios';
-import './Home.css';  // Import the global CSS styles
+import './Home.css';
+
+const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 const Courses = () => {
     const [courses, setCourses] = useState([]);
@@ -9,7 +11,6 @@ const Courses = () => {
     const [editingCourse, setEditingCourse] = useState(null);
     const [form] = Form.useForm();
 
-    // Fetch courses from backend
     useEffect(() => {
         fetchCourses();
     }, []);
@@ -17,7 +18,7 @@ const Courses = () => {
     const fetchCourses = async () => {
         try {
             console.log("Fetching courses...");
-            const response = await axios.get('http://localhost:3000/api/courses');
+            const response = await axios.get(`${API_BASE_URL}/api/courses`);
             console.log("Fetched courses:", response.data);
             setCourses(response.data);
         } catch (error) {
@@ -26,7 +27,6 @@ const Courses = () => {
         }
     };
 
-    // Define columns to display all course information
     const columns = [
         { title: 'Course ID', dataIndex: 'course_id', key: 'course_id' },
         { title: 'Course Name', dataIndex: 'course_name', key: 'course_name' },
@@ -45,35 +45,24 @@ const Courses = () => {
         },
     ];
 
-    // Add or edit a course
     const handleAddEdit = async () => {
-        console.log("OK button clicked, starting handleAddEdit"); // Log trigger
+        console.log("OK button clicked, starting handleAddEdit");
         try {
             const values = await form.validateFields();
-            console.log("Form values:", values); // Log the validated form data
+            console.log("Form values:", values);
 
             if (editingCourse) {
-                // Update course
-                console.log("Editing existing course with ID:", editingCourse.course_id);
-                const response = await axios.put(`http://localhost:3000/api/courses/${editingCourse.course_id}`, values);
-
-                // Optimistically update the local state
+                const response = await axios.put(`${API_BASE_URL}/api/courses/${editingCourse.course_id}`, values);
                 setCourses(courses.map(course =>
                     course.course_id === editingCourse.course_id ? { ...course, ...values } : course
                 ));
-
                 console.log("Updated course:", response.data);
             } else {
-                // Add new course
-                console.log("Adding a new course");
-                const response = await axios.post('http://localhost:3000/api/courses', values);
-
-                // Add the newly created course to the local state
+                const response = await axios.post(`${API_BASE_URL}/api/courses`, values);
                 setCourses([...courses, response.data]);
                 console.log("New course added:", response.data);
             }
 
-            // Close the modal and reset the form
             setIsModalOpen(false);
             form.resetFields();
             setEditingCourse(null);
@@ -83,7 +72,6 @@ const Courses = () => {
         }
     };
 
-    // Populate form with course data for editing
     const handleEdit = (course) => {
         console.log("Editing course:", course);
         form.setFieldsValue(course);
@@ -91,11 +79,10 @@ const Courses = () => {
         setIsModalOpen(true);
     };
 
-    // Delete a course
     const handleDelete = async (course_id) => {
         console.log("Deleting course with ID:", course_id);
         try {
-            await axios.delete(`http://localhost:3000/api/courses/${course_id}`);
+            await axios.delete(`${API_BASE_URL}/api/courses/${course_id}`);
             setCourses(courses.filter(course => course.course_id !== course_id));
             console.log("Course deleted successfully");
         } catch (error) {
@@ -104,7 +91,6 @@ const Courses = () => {
         }
     };
 
-    // Toggle modal visibility and reset form
     const toggleModal = (visible) => {
         console.log(`Setting modal visibility to: ${visible}`);
         setIsModalOpen(visible);
