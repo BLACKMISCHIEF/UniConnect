@@ -8,7 +8,7 @@ const port = 3000;
 // Define allowed origins
 const allowedOrigins = [
   'http://localhost:3000', // Local frontend
-  'https://uni-connect-5d5e.vercel.app/', // Deployed Vercel frontend
+  'https://uni-connect-5d5e.vercel.app', // Deployed Vercel frontend
 ];
 
 // CORS options
