@@ -1,8 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form, Input, DatePicker, InputNumber } from 'antd';
 import axios from 'axios';
 import moment from 'moment';
+
+const API_URL = process.env.REACT_APP_API_URL; // 👈 use env variable
 
 const Students = () => {
     const [students, setStudents] = useState([]);
@@ -10,7 +11,6 @@ const Students = () => {
     const [editingStudent, setEditingStudent] = useState(null);
     const [form] = Form.useForm();
 
-    // Fetch students from backend
     useEffect(() => {
         fetchStudents();
     }, []);
@@ -18,7 +18,7 @@ const Students = () => {
     const fetchStudents = async () => {
         try {
             console.log("Fetching students...");
-            const response = await axios.get('http://localhost:3000/api/students');
+            const response = await axios.get(`${API_URL}/api/students`);
             console.log("Fetched students:", response.data);
             setStudents(response.data);
         } catch (error) {
@@ -27,7 +27,6 @@ const Students = () => {
         }
     };
 
-    // Define columns to display all student information
     const columns = [
         { title: 'Student ID', dataIndex: 'student_id', key: 'student_id' },
         { title: 'Name', dataIndex: 'name', key: 'name' },
@@ -53,40 +52,25 @@ const Students = () => {
         },
     ];
 
-    // Add or edit a student
     const handleAddEdit = async () => {
-        console.log("OK button clicked, starting handleAddEdit"); // Log trigger
         try {
             const values = await form.validateFields();
-            console.log("Form values:", values); // Log the validated form data
-
-            // Format the date_of_birth for backend if it's a moment object
             if (values.date_of_birth) {
-                values.date_of_birth = values.date_of_birth.format('YYYY-MM-DD'); // Format the date to match backend
+                values.date_of_birth = values.date_of_birth.format('YYYY-MM-DD');
             }
 
             if (editingStudent) {
-                // Update student
-                console.log("Editing existing student with ID:", editingStudent.student_id);
-                const response = await axios.put(`http://localhost:3000/api/students/${editingStudent.student_id}`, values);
-
-                // Optimistically update the local state
+                const response = await axios.put(`${API_URL}/api/students/${editingStudent.student_id}`, values);
                 setStudents(students.map(student =>
                     student.student_id === editingStudent.student_id ? { ...student, ...values } : student
                 ));
-
                 console.log("Updated student:", response.data);
             } else {
-                // Add new student
-                console.log("Adding a new student");
-                const response = await axios.post('http://localhost:3000/api/students', values);
-
-                // Add the newly created student to the local state
+                const response = await axios.post(`${API_URL}/api/students`, values);
                 setStudents([...students, response.data]);
                 console.log("New student added:", response.data);
             }
 
-            // Close the modal and reset the form
             setIsModalOpen(false);
             form.resetFields();
             setEditingStudent(null);
@@ -96,22 +80,18 @@ const Students = () => {
         }
     };
 
-    // Populate form with student data for editing
     const handleEdit = (student) => {
-        console.log("Editing student:", student);
         form.setFieldsValue({
             ...student,
-            date_of_birth: moment(student.date_of_birth) // Format the date for the DatePicker
+            date_of_birth: moment(student.date_of_birth)
         });
         setEditingStudent(student);
         setIsModalOpen(true);
     };
 
-    // Delete a student
     const handleDelete = async (student_id) => {
-        console.log("Deleting student with ID:", student_id);
         try {
-            await axios.delete(`http://localhost:3000/api/students/${student_id}`);
+            await axios.delete(`${API_URL}/api/students/${student_id}`);
             setStudents(students.filter(student => student.student_id !== student_id));
             console.log("Student deleted successfully");
         } catch (error) {
@@ -120,9 +100,7 @@ const Students = () => {
         }
     };
 
-    // Toggle modal visibility and reset form
     const toggleModal = (visible) => {
-        console.log(`Setting modal visibility to: ${visible}`);
         setIsModalOpen(visible);
         if (!visible) {
             form.resetFields();
