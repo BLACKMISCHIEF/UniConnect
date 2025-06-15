@@ -3,27 +3,12 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
-const allowedOrigins = [
-  'http://localhost:3000',
-  'https://uni-connect-5d5e.vercel.app',
-  'http://192.168.20.242:3000'
-];
-
-const corsOptions = {
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
-};
-
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
+// 🚨 ALLOW ALL ORIGINS (TEMPORARY FOR TESTING)
+app.use(cors({
+  origin: '*', // <-- change this later to secure allowedOrigins
+}));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -46,5 +31,5 @@ app.use('/api/alumni', alumniRoutes);
 app.use('/api/attendance', attendanceRoutes);
 
 app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+  console.log(`Server running on http://localhost:${port}`);
 });
