@@ -1,0 +1,9 @@
+services:
+  - type: private
+    name: mysql-database
+    env: docker
+    repo: https://github.com/jdoijad15115/UniConnect
+    branch: main
+    dockerfilePath: ./Dockerfile
+    autoDeploy: false
+    plan: free
