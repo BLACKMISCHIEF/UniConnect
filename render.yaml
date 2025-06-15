@@ -1,5 +1,5 @@
 services:
-  - type: private
+  - type: web
     name: mysql-database
     env: docker
     repo: https://github.com/jdoijad15115/UniConnect
