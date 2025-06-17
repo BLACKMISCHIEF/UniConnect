@@ -3,7 +3,7 @@ import { Table, Button, Modal, Form, Input, DatePicker, InputNumber } from 'antd
 import axios from 'axios';
 import moment from 'moment';
 
-const API_URL = process.env.REACT_APP_API_URL; // 👈 use env variable
+const API_URL = process.env.REACT_APP_API_URL; //  use env variable
 
 const Students = () => {
     const [students, setStudents] = useState([]);
@@ -16,16 +16,28 @@ const Students = () => {
     }, []);
 
     const fetchStudents = async () => {
-        try {
-            console.log("Fetching students...");
-            const response = await axios.get(`${API_URL}/api/students`);
-            console.log("Fetched students:", response.data);
-            setStudents(response.data);
-        } catch (error) {
-            console.error("Error fetching students:", error);
-            alert("Error fetching students. Check console for details.");
+    try {
+        console.log("Fetching students...");
+        const response = await axios.get(`${API_URL}/api/students`);
+        console.log(" Students fetched successfully:", response.data);
+        setStudents(response.data);
+    } catch (error) {
+        console.error("Error fetching students:");
+        if (error.response) {
+            // Server responded with a status other than 2xx
+            console.error("Status:", error.response.status);
+            console.error("Data:", error.response.data);
+            console.error("Headers:", error.response.headers);
+        } else if (error.request) {
+            // Request was made but no response
+            console.error("No response received:", error.request);
+        } else {
+            // Something else triggered the error
+            console.error("Error message:", error.message);
         }
-    };
+        alert("Error fetching students. Check console for full error log.");
+    }
+};
 
     const columns = [
         { title: 'Student ID', dataIndex: 'student_id', key: 'student_id' },
