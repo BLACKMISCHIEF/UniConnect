@@ -5,8 +5,8 @@ const db = require('../../config');
 // Get all departments
 router.get('/', async (req, res) => {
     try {
-        const [departments] = await db.query('SELECT * FROM departments');
-        res.json(departments);
+        const result = await db.query('SELECT * FROM departments');
+        res.json(result.rows);
     } catch (error) {
         console.error("Error fetching departments:", error);
         res.status(500).json({ error: 'Error fetching departments' });
@@ -17,9 +17,11 @@ router.get('/', async (req, res) => {
 router.get('/:department_id', async (req, res) => {
     try {
         const { department_id } = req.params;
-        const [department] = await db.query('SELECT * FROM departments WHERE department_id = ?', [department_id]);
-        if (department.length === 0) return res.status(404).json({ error: 'Department not found' });
-        res.json(department[0]);
+        const result = await db.query('SELECT * FROM departments WHERE department_id = $1', [department_id]);
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Department not found' });
+        }
+        res.json(result.rows[0]);
     } catch (error) {
         console.error("Error fetching department:", error);
         res.status(500).json({ error: 'Error fetching department' });
@@ -30,11 +32,15 @@ router.get('/:department_id', async (req, res) => {
 router.post('/', async (req, res) => {
     try {
         const { department_name, head_of_department } = req.body;
-        const [result] = await db.query(
-            'INSERT INTO departments (department_name, head_of_department) VALUES (?, ?)',
+        const result = await db.query(
+            'INSERT INTO departments (department_name, head_of_department) VALUES ($1, $2) RETURNING department_id',
             [department_name, head_of_department]
         );
-        res.json({ department_id: result.insertId, department_name, head_of_department });
+        res.json({
+            department_id: result.rows[0].department_id,
+            department_name,
+            head_of_department
+        });
     } catch (error) {
         console.error("Error adding department:", error);
         res.status(500).json({ error: 'Error adding department' });
@@ -46,10 +52,16 @@ router.put('/:department_id', async (req, res) => {
     try {
         const { department_id } = req.params;
         const { department_name, head_of_department } = req.body;
-        await db.query(
-            'UPDATE departments SET department_name = ?, head_of_department = ? WHERE department_id = ?',
+
+        const result = await db.query(
+            'UPDATE departments SET department_name = $1, head_of_department = $2 WHERE department_id = $3',
             [department_name, head_of_department, department_id]
         );
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: 'Department not found' });
+        }
+
         res.json({ department_id, department_name, head_of_department });
     } catch (error) {
         console.error("Error updating department:", error);
@@ -61,7 +73,12 @@ router.put('/:department_id', async (req, res) => {
 router.delete('/:department_id', async (req, res) => {
     try {
         const { department_id } = req.params;
-        await db.query('DELETE FROM departments WHERE department_id = ?', [department_id]);
+        const result = await db.query('DELETE FROM departments WHERE department_id = $1', [department_id]);
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: 'Department not found' });
+        }
+
         res.json({ message: 'Department deleted successfully' });
     } catch (error) {
         console.error("Error deleting department:", error);
