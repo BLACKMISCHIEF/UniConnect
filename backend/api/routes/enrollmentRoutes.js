@@ -6,10 +6,10 @@ const db = require('../../config');
 router.get('/', async (req, res) => {
     try {
         const result = await db.query('SELECT * FROM enrollments');
-        res.json(result.rows);
+        res.json(result.rows); // ✅ returns all rows
     } catch (error) {
         console.error("Error fetching enrollments:", error.message);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: 'Error fetching enrollments' });
     }
 });
 
@@ -24,7 +24,7 @@ router.get('/:id', async (req, res) => {
         res.json(result.rows[0]);
     } catch (error) {
         console.error("Error fetching enrollment by ID:", error.message);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: 'Error fetching enrollment by ID' });
     }
 });
 
@@ -32,20 +32,24 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
     const { enrollment_id, student_id, course_id, enrollment_date, grade } = req.body;
 
-    if (!student_id || !course_id || !enrollment_date || !grade) {
+    if (!enrollment_id || !student_id || !course_id || !enrollment_date || !grade) {
         return res.status(400).json({ error: "All fields are required." });
     }
 
     try {
         const result = await db.query(
             `INSERT INTO enrollments (enrollment_id, student_id, course_id, enrollment_date, grade)
-             VALUES ($1, $2, $3, $4, $5) RETURNING enrollment_id`,
+             VALUES ($1, $2, $3, $4, $5) RETURNING *`,
             [enrollment_id, student_id, course_id, enrollment_date, grade]
         );
-        res.json({ message: 'Enrollment added successfully', enrollmentId: result.rows[0].enrollment_id });
+
+        res.status(201).json({
+            message: 'Enrollment added successfully',
+            enrollment: result.rows[0],
+        });
     } catch (error) {
         console.error("Error adding enrollment:", error.message);
-        res.status(500).json({ error: "Failed to add enrollment." });
+        res.status(500).json({ error: 'Failed to add enrollment' });
     }
 });
 
@@ -62,7 +66,7 @@ router.put('/:id', async (req, res) => {
         const result = await db.query(
             `UPDATE enrollments
              SET student_id = $1, course_id = $2, enrollment_date = $3, grade = $4
-             WHERE enrollment_id = $5`,
+             WHERE enrollment_id = $5 RETURNING *`,
             [student_id, course_id, enrollment_date, grade, id]
         );
 
@@ -70,10 +74,10 @@ router.put('/:id', async (req, res) => {
             return res.status(404).json({ error: 'Enrollment not found' });
         }
 
-        res.json({ message: 'Enrollment updated successfully' });
+        res.json({ message: 'Enrollment updated successfully', enrollment: result.rows[0] });
     } catch (error) {
         console.error("Error updating enrollment:", error.message);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: 'Failed to update enrollment' });
     }
 });
 
@@ -90,7 +94,7 @@ router.delete('/:id', async (req, res) => {
         res.json({ message: 'Enrollment deleted successfully' });
     } catch (error) {
         console.error("Error deleting enrollment:", error.message);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: 'Failed to delete enrollment' });
     }
 });
 
