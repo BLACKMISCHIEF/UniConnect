@@ -16,7 +16,7 @@ const Departments = () => {
 
     const fetchDepartments = async () => {
         try {
-            const { data } = await axios.get(`${API_URL}/departments`);
+            const { data } = await axios.get(`${API_URL}/api/departments`);
             setDepartments(data);
         } catch (error) {
             notification.error({
@@ -31,7 +31,7 @@ const Departments = () => {
             const values = await form.validateFields();
 
             if (editingDepartment) {
-                await axios.put(`${API_URL}/departments/${editingDepartment.department_id}`, values);
+                await axios.put(`${API_URL}/api/departments/${editingDepartment.department_id}`, values);
                 setDepartments(departments.map(dept =>
                     dept.department_id === editingDepartment.department_id
                         ? { ...dept, ...values }
@@ -39,7 +39,7 @@ const Departments = () => {
                 ));
                 notification.success({ message: 'Department updated successfully' });
             } else {
-                const { data } = await axios.post(`${API_URL}/departments`, values);
+                const { data } = await axios.post(`${API_URL}/api/departments`, values);
                 setDepartments([...departments, data]);
                 notification.success({ message: 'Department added successfully' });
             }
@@ -61,7 +61,7 @@ const Departments = () => {
 
     const handleDelete = async (department_id) => {
         try {
-            await axios.delete(`${API_URL}/departments/${department_id}`);
+            await axios.delete(`${API_URL}/api/departments/${department_id}`);
             setDepartments(departments.filter(dept => dept.department_id !== department_id));
             notification.success({ message: 'Department deleted successfully' });
         } catch (error) {
