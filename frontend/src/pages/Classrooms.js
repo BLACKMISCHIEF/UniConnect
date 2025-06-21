@@ -11,14 +11,13 @@ const Classrooms = () => {
     const [currentClassroom, setCurrentClassroom] = useState(null);
     const [form] = Form.useForm();
 
-    // Fetch all classrooms
     useEffect(() => {
         fetchClassrooms();
     }, []);
 
     const fetchClassrooms = async () => {
         try {
-            const response = await axios.get(`${API_URL}/classrooms`);
+            const response = await axios.get(`${API_URL}/api/classrooms`);
             setClassrooms(response.data);
         } catch (error) {
             notification.error({
@@ -31,8 +30,8 @@ const Classrooms = () => {
     const handleAdd = async () => {
         try {
             const values = await form.validateFields();
-            const response = await axios.post(`${API_URL}/classrooms`, {
-                room_number: values.roomNumber,
+            const response = await axios.post(`${API_URL}/api/classrooms`, {
+                room_number: values.room_number,
                 building: values.building,
                 capacity: values.capacity
             });
@@ -50,8 +49,8 @@ const Classrooms = () => {
     const handleEdit = async () => {
         try {
             const values = await form.validateFields();
-            await axios.put(`${API_URL}/classrooms/${currentClassroom.classroom_id}`, {
-                room_number: values.roomNumber,
+            await axios.put(`${API_URL}/api/classrooms/${currentClassroom.classroom_id}`, {
+                room_number: values.room_number,
                 building: values.building,
                 capacity: values.capacity
             });
@@ -73,7 +72,7 @@ const Classrooms = () => {
 
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`${API_URL}/classrooms/${id}`);
+            await axios.delete(`${API_URL}/api/classrooms/${id}`);
             setClassrooms(classrooms.filter((c) => c.classroom_id !== id));
             notification.success({ message: 'Classroom deleted successfully' });
         } catch (error) {
@@ -88,7 +87,7 @@ const Classrooms = () => {
         setIsEditMode(true);
         setCurrentClassroom(classroom);
         form.setFieldsValue({
-            roomNumber: classroom.room_number,
+            room_number: classroom.room_number,
             building: classroom.building,
             capacity: classroom.capacity,
         });
@@ -133,7 +132,7 @@ const Classrooms = () => {
                 onOk={isEditMode ? handleEdit : handleAdd}
             >
                 <Form form={form} layout="vertical">
-                    <Form.Item name="roomNumber" label="Room Number" rules={[{ required: true }]}>
+                    <Form.Item name="room_number" label="Room Number" rules={[{ required: true }]}>
                         <Input />
                     </Form.Item>
                     <Form.Item name="building" label="Building" rules={[{ required: true }]}>
