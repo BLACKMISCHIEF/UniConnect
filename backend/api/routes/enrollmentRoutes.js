@@ -85,16 +85,20 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
     const { id } = req.params;
     try {
-        const result = await db.query('DELETE FROM enrollments WHERE enrollment_id = $1', [id]);
+        // First delete enrollments referencing this course
+        await db.query('DELETE FROM enrollments WHERE course_id = $1', [id]);
+
+        // Now delete the course itself
+        const result = await db.query('DELETE FROM courses WHERE course_id = $1', [id]);
 
         if (result.rowCount === 0) {
-            return res.status(404).json({ error: 'Enrollment not found' });
+            return res.status(404).json({ error: 'Course not found' });
         }
 
-        res.json({ message: 'Enrollment deleted successfully' });
+        res.json({ message: 'Course deleted successfully' });
     } catch (error) {
-        console.error("Error deleting enrollment:", error.message);
-        res.status(500).json({ error: 'Failed to delete enrollment' });
+        console.error("Error deleting course:", error.message);
+        res.status(500).json({ error: 'Failed to delete course' });
     }
 });
 
