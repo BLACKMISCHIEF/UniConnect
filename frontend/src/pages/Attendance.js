@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, DatePicker, Select, notification } from 'antd';
+import { Table, Button, Modal, Form, DatePicker, Select, notification } from 'antd';
 import axios from 'axios';
 import moment from 'moment';
 
@@ -21,7 +21,7 @@ const Attendance = () => {
 
     const fetchAttendance = async () => {
         try {
-            const { data } = await axios.get(`${API_URL}/api/attendance`);
+            const { data } = await axios.get(`${API_URL}/attendance`);
             setAttendance(data);
         } catch (error) {
             notification.error({
@@ -33,7 +33,7 @@ const Attendance = () => {
 
     const fetchStudents = async () => {
         try {
-            const { data } = await axios.get(`${API_URL}/api/students`);
+            const { data } = await axios.get(`${API_URL}/students`);
             setStudents(data);
         } catch (error) {
             notification.error({
@@ -45,7 +45,7 @@ const Attendance = () => {
 
     const fetchCourses = async () => {
         try {
-            const { data } = await axios.get(`${API_URL}/api/courses`);
+            const { data } = await axios.get(`${API_URL}/courses`);
             setCourses(data);
         } catch (error) {
             notification.error({
@@ -61,13 +61,13 @@ const Attendance = () => {
             values.attendance_date = values.attendance_date.format('YYYY-MM-DD');
 
             if (editingAttendance) {
-                await axios.put(`${API_URL}/api/attendance/${editingAttendance.attendance_id}`, values);
+                await axios.put(`${API_URL}/attendance/${editingAttendance.attendance_id}`, values);
                 setAttendance(attendance.map(att =>
                     att.attendance_id === editingAttendance.attendance_id ? { ...att, ...values } : att
                 ));
                 notification.success({ message: 'Attendance updated successfully' });
             } else {
-                const { data } = await axios.post(`${API_URL}/api/attendance`, values);
+                const { data } = await axios.post(`${API_URL}/attendance`, values);
                 setAttendance([...attendance, data]);
                 notification.success({ message: 'Attendance added successfully' });
             }
@@ -92,7 +92,7 @@ const Attendance = () => {
 
     const handleDelete = async (attendance_id) => {
         try {
-            await axios.delete(`${API_URL}/api/attendance/${attendance_id}`);
+            await axios.delete(`${API_URL}/attendance/${attendance_id}`);
             setAttendance(attendance.filter(att => att.attendance_id !== attendance_id));
             notification.success({ message: 'Attendance deleted successfully' });
         } catch (error) {
@@ -157,16 +157,10 @@ const Attendance = () => {
             >
                 <Form form={form} layout="vertical">
                     <Form.Item
-                        name="attendance_id"
-                        label="Attendance ID"
-                        rules={[{ required: true, message: "Please enter a unique attendance ID" }]}>
-                        <Input disabled={!!editingAttendance} />
-                    </Form.Item>
-
-                    <Form.Item
                         name="student_id"
                         label="Student"
-                        rules={[{ required: true, message: "Please select a student" }]}>
+                        rules={[{ required: true, message: "Please select a student" }]}
+                    >
                         <Select placeholder="Select a student" disabled={!!editingAttendance}>
                             {students.map((s) => (
                                 <Select.Option key={s.student_id} value={s.student_id}>
@@ -179,7 +173,8 @@ const Attendance = () => {
                     <Form.Item
                         name="course_id"
                         label="Course"
-                        rules={[{ required: true, message: "Please select a course" }]}>
+                        rules={[{ required: true, message: "Please select a course" }]}
+                    >
                         <Select placeholder="Select a course" disabled={!!editingAttendance}>
                             {courses.map((c) => (
                                 <Select.Option key={c.course_id} value={c.course_id}>
@@ -192,14 +187,16 @@ const Attendance = () => {
                     <Form.Item
                         name="attendance_date"
                         label="Date"
-                        rules={[{ required: true, message: "Please select the date" }]}>
+                        rules={[{ required: true, message: "Please select the date" }]}
+                    >
                         <DatePicker format="YYYY-MM-DD" style={{ width: '100%' }} />
                     </Form.Item>
 
                     <Form.Item
                         name="status"
                         label="Status"
-                        rules={[{ required: true, message: "Please select attendance status" }]}>
+                        rules={[{ required: true, message: "Please select attendance status" }]}
+                    >
                         <Select placeholder="Select status">
                             <Select.Option value="Present">Present</Select.Option>
                             <Select.Option value="Absent">Absent</Select.Option>
