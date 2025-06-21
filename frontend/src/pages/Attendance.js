@@ -21,7 +21,7 @@ const Attendance = () => {
 
     const fetchAttendance = async () => {
         try {
-            const { data } = await axios.get(`${API_URL}/attendance`);
+            const { data } = await axios.get(`${API_URL}/api/attendance`);
             setAttendance(data);
         } catch (error) {
             notification.error({
@@ -33,7 +33,7 @@ const Attendance = () => {
 
     const fetchStudents = async () => {
         try {
-            const { data } = await axios.get(`${API_URL}/students`);
+            const { data } = await axios.get(`${API_URL}/api/students`);
             setStudents(data);
         } catch (error) {
             notification.error({
@@ -45,7 +45,7 @@ const Attendance = () => {
 
     const fetchCourses = async () => {
         try {
-            const { data } = await axios.get(`${API_URL}/courses`);
+            const { data } = await axios.get(`${API_URL}/api/courses`);
             setCourses(data);
         } catch (error) {
             notification.error({
@@ -61,13 +61,13 @@ const Attendance = () => {
             values.attendance_date = values.attendance_date.format('YYYY-MM-DD');
 
             if (editingAttendance) {
-                await axios.put(`${API_URL}/attendance/${editingAttendance.attendance_id}`, values);
+                await axios.put(`${API_URL}/api/attendance/${editingAttendance.attendance_id}`, values);
                 setAttendance(attendance.map(att =>
                     att.attendance_id === editingAttendance.attendance_id ? { ...att, ...values } : att
                 ));
                 notification.success({ message: 'Attendance updated successfully' });
             } else {
-                const { data } = await axios.post(`${API_URL}/attendance`, values);
+                const { data } = await axios.post(`${API_URL}/api/attendance`, values);
                 setAttendance([...attendance, data]);
                 notification.success({ message: 'Attendance added successfully' });
             }
@@ -92,7 +92,7 @@ const Attendance = () => {
 
     const handleDelete = async (attendance_id) => {
         try {
-            await axios.delete(`${API_URL}/attendance/${attendance_id}`);
+            await axios.delete(`${API_URL}/api/attendance/${attendance_id}`);
             setAttendance(attendance.filter(att => att.attendance_id !== attendance_id));
             notification.success({ message: 'Attendance deleted successfully' });
         } catch (error) {
