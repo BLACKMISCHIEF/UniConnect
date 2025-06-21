@@ -2,10 +2,10 @@ const express = require('express');
 const router = express.Router();
 const db = require('../../config'); // PostgreSQL Pool
 
-// Get all attendance records
+// GET all attendance records
 router.get('/', async (req, res) => {
     try {
-        const result = await db.query('SELECT * FROM attendance');
+        const result = await db.query('SELECT * FROM attendance ORDER BY attendance_id ASC');
         res.json(result.rows);
     } catch (error) {
         console.error("Error fetching attendance records:", error.message);
@@ -13,7 +13,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-// Get attendance record by ID
+// GET a single attendance record by ID
 router.get('/:id', async (req, res) => {
     const { id } = req.params;
     try {
@@ -28,7 +28,7 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// Create a new attendance record
+// POST: Add new attendance record
 router.post('/', async (req, res) => {
     const { student_id, course_id, attendance_date, status } = req.body;
 
@@ -38,35 +38,30 @@ router.post('/', async (req, res) => {
 
     const formattedDate = new Date(attendance_date).toISOString().split('T')[0];
 
-    // Check for duplicates
     try {
+        // Optional: prevent duplicate record
         const duplicateCheck = await db.query(
-            'SELECT * FROM attendance WHERE student_id = $1 AND course_id = $2 AND attendance_date = $3',
+            'SELECT 1 FROM attendance WHERE student_id = $1 AND course_id = $2 AND attendance_date = $3',
             [student_id, course_id, formattedDate]
         );
-
         if (duplicateCheck.rows.length > 0) {
-            return res.status(400).json({ error: 'Attendance record already exists for this student on the given date for the course' });
+            return res.status(400).json({ error: 'Duplicate attendance entry for this student, course, and date.' });
         }
-    } catch (error) {
-        console.error("Error checking attendance record:", error.message);
-        return res.status(500).json({ error: "Database error while checking attendance." });
-    }
 
-    try {
         const result = await db.query(
             `INSERT INTO attendance (student_id, course_id, attendance_date, status)
-             VALUES ($1, $2, $3, $4) RETURNING attendance_id`,
+             VALUES ($1, $2, $3, $4) RETURNING *`,
             [student_id, course_id, formattedDate, status]
         );
-        res.status(201).json({ message: 'Attendance record created successfully', attendanceId: result.rows[0].attendance_id });
+
+        res.status(201).json(result.rows[0]);
     } catch (error) {
         console.error("Error adding attendance record:", error.message);
-        res.status(500).json({ error: "Failed to add attendance record. Check server logs for more details." });
+        res.status(500).json({ error: "Failed to add attendance record." });
     }
 });
 
-// Update an attendance record
+// PUT: Update attendance record
 router.put('/:id', async (req, res) => {
     const { id } = req.params;
     const { student_id, course_id, attendance_date, status } = req.body;
@@ -96,9 +91,10 @@ router.put('/:id', async (req, res) => {
     }
 });
 
-// Delete an attendance record
+// DELETE attendance record
 router.delete('/:id', async (req, res) => {
     const { id } = req.params;
+
     try {
         const result = await db.query('DELETE FROM attendance WHERE attendance_id = $1', [id]);
 
