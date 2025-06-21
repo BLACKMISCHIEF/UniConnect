@@ -113,8 +113,22 @@ const Attendance = () => {
 
     const columns = [
         { title: 'Attendance ID', dataIndex: 'attendance_id', key: 'attendance_id' },
-        { title: 'Student ID', dataIndex: 'student_id', key: 'student_id' },
-        { title: 'Course ID', dataIndex: 'course_id', key: 'course_id' },
+        {
+            title: 'Student',
+            key: 'student_name',
+            render: (_, record) => {
+                const student = students.find(s => s.student_id === record.student_id);
+                return student ? `${student.first_name} ${student.last_name}` : record.student_id;
+            }
+        },
+        {
+            title: 'Course',
+            key: 'course_name',
+            render: (_, record) => {
+                const course = courses.find(c => c.course_id === record.course_id);
+                return course ? course.course_name : record.course_id;
+            }
+        },
         {
             title: 'Date',
             dataIndex: 'attendance_date',
