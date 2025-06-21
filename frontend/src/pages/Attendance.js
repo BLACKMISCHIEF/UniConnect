@@ -22,6 +22,7 @@ const Attendance = () => {
     const fetchAttendance = async () => {
         try {
             const { data } = await axios.get(`${API_URL}/api/attendance`);
+            console.log("Fetched attendance:", data);
             setAttendance(data);
         } catch (error) {
             notification.error({
@@ -34,6 +35,7 @@ const Attendance = () => {
     const fetchStudents = async () => {
         try {
             const { data } = await axios.get(`${API_URL}/api/students`);
+            console.log("Fetched students:", data);
             setStudents(data);
         } catch (error) {
             notification.error({
@@ -46,6 +48,7 @@ const Attendance = () => {
     const fetchCourses = async () => {
         try {
             const { data } = await axios.get(`${API_URL}/api/courses`);
+            console.log("Fetched courses:", data);
             setCourses(data);
         } catch (error) {
             notification.error({
@@ -118,7 +121,10 @@ const Attendance = () => {
             key: 'student_name',
             render: (_, record) => {
                 const student = students.find(s => s.student_id === record.student_id);
-                return student ? `${student.first_name || ''} ${student.last_name || ''}`.trim() : record.student_id;
+                const name = student
+                    ? `${student.first_name || ''} ${student.last_name || ''}`.trim()
+                    : record.student_id;
+                return name;
             }
         },
         {
