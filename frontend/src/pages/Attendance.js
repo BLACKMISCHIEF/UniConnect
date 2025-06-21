@@ -117,16 +117,14 @@ const Attendance = () => {
     const columns = [
         { title: 'Attendance ID', dataIndex: 'attendance_id', key: 'attendance_id' },
         {
-            title: 'Student',
-            key: 'student_name',
-            render: (_, record) => {
-                const student = students.find(s => s.student_id === record.student_id);
-                const name = student
-                    ? `${student.first_name || ''} ${student.last_name || ''}`.trim()
-                    : record.student_id;
-                return name;
-            }
-        },
+    title: 'Student',
+    key: 'student_name',
+    render: (_, record) => {
+        const student = students.find(s => s.student_id === record.student_id);
+        return student ? student.name : record.student_id;
+    }
+},
+
         {
             title: 'Course',
             key: 'course_name',
