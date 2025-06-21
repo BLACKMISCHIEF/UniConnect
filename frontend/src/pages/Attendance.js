@@ -118,7 +118,7 @@ const Attendance = () => {
             key: 'student_name',
             render: (_, record) => {
                 const student = students.find(s => s.student_id === record.student_id);
-                return student ? `${student.first_name} ${student.last_name}` : record.student_id;
+                return student ? `${student.first_name || ''} ${student.last_name || ''}`.trim() : record.student_id;
             }
         },
         {
@@ -178,7 +178,7 @@ const Attendance = () => {
                         <Select placeholder="Select a student" disabled={!!editingAttendance}>
                             {students.map((s) => (
                                 <Select.Option key={s.student_id} value={s.student_id}>
-                                    {s.student_id} - {s.first_name} {s.last_name}
+                                    {s.student_id} - {(s.first_name || '') + ' ' + (s.last_name || '')}
                                 </Select.Option>
                             ))}
                         </Select>
