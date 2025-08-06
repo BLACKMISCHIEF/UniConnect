@@ -282,17 +282,6 @@ We welcome contributions to UniConnect! Here's how you can help:
 
 ---
 
-## 👨‍💻 Author & Acknowledgments
-
-<div align="center">
-
-**Designed and Developed by**
-
-[![Janhavi Doijad](https://img.shields.io/badge/👩‍💻-Janhavi%20Doijad-purple?style=for-the-badge)](https://github.com/jdoijad15115)
-
-*Full-Stack Developer | Educational Technology Enthusiast*
-
-</div>
 
 ### 🙏 Special Thanks
 - The open-source community for amazing tools and libraries
